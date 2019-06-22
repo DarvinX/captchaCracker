@@ -1,6 +1,6 @@
 # captchaCracker
 This is a keras model(with tensorflow) to decode captcha images.
-The dataset is collected from https://www.kaggle.com/fournierp/captcha-version-2-images. For better usability I've splited the dataset into two folders, train and validation. There is no seperate test set, though validation set can be uses as test set.
+The dataset is collected from https://www.kaggle.com/fournierp/captcha-version-2-images. For better usability I've splitted the dataset into two folders, train and validation. There is no seperate test set, though validation set can be uses as test set.
 
 # predict
 I've uploaded the trained model. You can get prediction for an image by calling the prediction.py script, it takes the image name as an argument(give the full path of the image from the script directory.
