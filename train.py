@@ -2,13 +2,12 @@
 import numpy as np
 import string
 
-symbols = string.ascii_lowercase + string.digits
+sym = sorted(string.ascii_lowercase + string.digits)
+symbols = dict((i, char) for i, char in enumerate(sym))
+reverse_symbols = dict((char, i) for i, char in symbols.items())
 
-symbols = sorted(symbols)
 symbols_len = len(symbols)
 
-print(symbols)
-print(symbols_len)
 # %%
 
 from keras.preprocessing.image import load_img, img_to_array
@@ -16,30 +15,40 @@ import matplotlib.pyplot as plt
 import glob
 import os
 
-dataset_path = "./dataset/train/"
+train_data_path = './dataset/train/'
+val_data_path = './dataset/validation/'
+training_names = []
+x_train = []
+x_val = []
 
-output_names = []
-x_ = []
+file_count_train = len(glob.glob(train_data_path + '*.png'))
+file_count_val = len(glob.glob(val_data_path + '*.png'))
 
-for file in glob.glob(dataset_path + "*.png"):
+y_train_dim = (5, file_count_train, symbols_len)
+y_val_dim = (5, file_count_val, symbols_len)
+
+y_train = np.zeros(y_train_dim)
+y_val = np.zeros(y_val_dim)
+np.shape(y_train)
+
+for num, file in enumerate(glob.glob(train_data_path + '*.png')):
     filename = os.path.basename(file)
     filename = filename.split('.')[0]
-    output_names.append(filename)
-    x_.append(img_to_array(load_img(file, color_mode='grayscale'))/255.)
+    x_train.append(img_to_array(load_img(file, color_mode='grayscale'))/255.)
 
-np.shape(x_)
-x_ = np.reshape(x_, (-1,50,200,1))
-np.shape(x_)
-# %%
-dim = (5, len(output_names), symbols_len)
-y_ = np.zeros(dim)
+    for i, char in enumerate(filename):
+        y_train[i][num][reverse_symbols[char]] = 1
 
-for i, name in enumerate(output_names):
-    for j in range(5):
-        y_[j][i][symbols.index(name[j])] = 1
+for num, file in enumerate(glob.glob(val_data_path + '*.png')):
+    filename = os.path.basename(file)
+    filename = filename.split('.')[0]
+    x_val.append(img_to_array(load_img(file, color_mode='grayscale'))/255.)
 
+    for i, char in enumerate(filename):
+        y_val[i][num][reverse_symbols[char]] = 1
 
 # %%
+y_val[1][5]
 
 # %% load the dataset
 plt.figure(figsize=(10,2))
@@ -47,8 +56,7 @@ plt.figure(figsize=(10,2))
 for _ in range(10):
     plt.subplot(2,5, _ + 1)
     plt.axis('off')
-    plt.title(output_names[_])
-    plt.imshow(np.reshape(x_[_], (50, 200)), cmap='gray')
+    plt.imshow(np.reshape(x_val[_], (50, 200)), cmap='gray')
 
 # %%
 from keras.models import Model
@@ -71,23 +79,29 @@ x = MaxPooling2D((2,2))(x)
 flat = Flatten()(x)
 outputs = []
 for _ in range(5):
-    fc1 = Dense(128, activation='relu')(flat)
+    fc1 = Dense(64, activation='relu')(flat)
     drop = Dropout(0.2)(fc1)
     fc2 = Dense(64, activation='relu')(drop)
     drop = Dropout(0.2)(fc2)
     out = Dense(36, activation='softmax')(drop)
     outputs.append(out)
+
 model = Model(input, outputs)
 model.summary()
 # %%
-from keras.utils import plot_model
-plot_model(model, to_file='model.png')
-# %%
+
+from keras.callbacks import ModelCheckpoint
+x_train_new = np.reshape(x_train, (-1,50,200,1))
+x_val_new = np.reshape(x_val, (-1,50,200,1))
+
+checkpoint = ModelCheckpoint('captchaCracker_model.h5', monitor='val_loss', save_best_only=True,verbose=0)
+
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-model.fit(x_,[y_[0],y_[1],y_[2],y_[3],y_[4]],
+model.fit(x_train_new,[y_train[0],y_train[1],y_train[2],y_train[3],y_train[4]],
           epochs=60,
           batch_size = 64,
-          validation_split=0.2,
+          validation_split= 0.1,
+          callbacks=[checkpoint]
           )
-# %%
-prediction =
+
+model.evaluate(x_val_new,[y_val[0],y_val[1],y_val[2],y_val[3],y_val[4]])
