@@ -3,8 +3,11 @@ from keras.preprocessing.image import load_img, img_to_array
 import numpy as np
 import sys
 import string
+import os
+import tensorflow as tf
 
-filename = './dataset/validation/2g783.png'
+tf.logging.set_verbosity(tf.logging.ERROR)
+
 output_name = ''
 sym = sorted(string.ascii_lowercase + string.digits)
 symbols = dict((i, char) for i, char in enumerate(sym))
@@ -24,4 +27,4 @@ prediction = np.argmax(prediction, axis=1)
 for i in prediction:
     output_name += symbols[i]
 
-print(output_name)
+print("the cracked captcha is: " + output_name)
