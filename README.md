@@ -7,4 +7,4 @@ I've uploaded the trained model. You can get prediction for an image by calling 
 > python prediction.py ./dataset/validation/7nnnx.png
 
 # Train
-To train it on your own dataset just put the pictures in the traing directory, use the filename to label the pictures. And run the train.py script.
+To train it on your own dataset just put the pictures in the traing directory, use the filename to label the pictures. And run the train.py script. (This model is made only for characterlength of 5)
