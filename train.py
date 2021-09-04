@@ -1,10 +1,12 @@
+import os
+os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
+
 from keras.models import Model
 from keras.callbacks import ModelCheckpoint
 from keras.preprocessing.image import load_img, img_to_array
 from keras.layers import Flatten, Dense, Conv2D, Dropout, MaxPooling2D, Input
 import matplotlib.pyplot as plt
 import glob
-import os
 import numpy as np
 import string
 
@@ -15,8 +17,8 @@ x_val = []
 label_name_len = 5
 img_height = 50
 img_width = 200
-batch_size = 64
-epochs = 50
+batch_size = 128
+epochs = 100
 
 sym = sorted(string.ascii_lowercase + string.digits)
 symbols = dict((i, char) for i, char in enumerate(sym))
@@ -62,7 +64,13 @@ for _ in range(10):
 # building the model
 input = Input(shape=(img_height,img_width,1))
 
+
+
 x = Conv2D(16, (3,3), activation='relu', padding='same')(input)
+x = Conv2D(16, (3,3), activation='relu', padding='same')(x)
+x = MaxPooling2D((2,2))(x)
+
+x = Conv2D(16, (3,3), activation='relu', padding='same')(x)
 x = Conv2D(16, (3,3), activation='relu', padding='same')(x)
 x = MaxPooling2D((2,2))(x)
 
@@ -70,9 +78,13 @@ x = Conv2D(32, (3,3), activation='relu', padding='same')(x)
 x = Conv2D(32, (3,3), activation='relu', padding='same')(x)
 x = MaxPooling2D((2,2))(x)
 
-x = Conv2D(64, (3,3), activation='relu', padding='same')(x)
-x = Conv2D(64, (3,3), activation='relu', padding='same')(x)
-x = MaxPooling2D((2,2))(x)
+#x = Conv2D(64, (3,3), activation='relu', padding='same')(x)
+#x = Conv2D(64, (3,3), activation='relu', padding='same')(x)
+#x = MaxPooling2D((2,2))(x)
+
+# x = Conv2D(128, (3,3), activation='relu', padding='same')(x)
+# x = Conv2D(128, (3,3), activation='relu', padding='same')(x)
+# x = MaxPooling2D((2,2))(x)
 
 flat = Flatten()(x)
 outputs = []
@@ -81,6 +93,8 @@ for _ in range(5):
     drop = Dropout(0.2)(fc1)
     fc2 = Dense(64, activation='relu')(drop)
     drop = Dropout(0.2)(fc2)
+    fc3 = Dense(64, activation='relu')(drop)
+    drop = Dropout(0.2)(fc3)
     out = Dense(symbols_len, activation='softmax')(drop)
     outputs.append(out)
 

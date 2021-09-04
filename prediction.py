@@ -1,12 +1,11 @@
+import os
+os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
+
 from keras.models import load_model
 from keras.preprocessing.image import load_img, img_to_array
 import numpy as np
 import sys
 import string
-import os
-import tensorflow as tf
-
-tf.logging.set_verbosity(tf.logging.ERROR)
 
 sym = sorted(string.ascii_lowercase + string.digits)
 symbols = dict((i, char) for i, char in enumerate(sym))
