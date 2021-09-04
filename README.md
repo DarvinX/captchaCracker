@@ -2,6 +2,9 @@
 This is a keras model(with tensorflow) to decode captcha images.
 The dataset is collected from https://www.kaggle.com/fournierp/captcha-version-2-images. For better usability I've splitted the dataset into two folders, train and validation. There is no seperate test set, validation set can be used for testing.
 
+# Results
+The model can read complete captcha text 45.33% of the time. It's not great but considering the fact that the model was trained using only 828 images, it should be acceptable. Still there is room for improvement with data augmentation.
+
 # The Architechture
 The Feature extraction stack is made of 6 convolution layers, then there are 6 different classifier with fully connected(Dense) layers to indentify the a specific character each acording to the place of the character in the image.
 
